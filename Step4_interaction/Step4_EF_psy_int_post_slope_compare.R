@@ -9,7 +9,7 @@ library(scales)
 library(tableone)
 library(openxlsx)
 library(cowplot)
-# 文件路径设置
+
 wd <- getwd()
 if (str_detect(wd, "cuizaixu_lab")){
   datapath <- '/ibmgpfs/cuizaixu_lab/tanlirou1/Yunfu/YF_final/interfileFolder'
@@ -26,7 +26,6 @@ if (str_detect(wd, "cuizaixu_lab")){
 }
 
 beta_table <- read.csv("/ibmgpfs/cuizaixu_lab/tanlirou1/Yunfu/YF_final/results/corr/corr_results_with_bonf.csv")
-# 读取数据
 GNGd_data <- readRDS(paste0(datapath, '/Gonogo/GNGd_prime.deviations.rds'))
 back1_data <- readRDS(paste0(datapath, '/1-back/back1Acc.deviations.rds'))
 back2_data <- readRDS(paste0(datapath, '/2-back/back2Acc.deviations.rds'))
@@ -35,7 +34,6 @@ back1_data$Sex <- as.factor(back1_data$Sex)
 back2_data$Sex <- as.factor(back2_data$Sex)
 
 source(paste0(functionFolder, '/gam_varyingcoefficients.R'))
-# 定义变量
 psyc_variables_continous <- c("SDQ_PB_sum", "SDQ_H_sum", "SDQ_CP_sum", "SDQ_PP_sum", "SDQ_ES_sum")
 EFvars.set <- matrix(c("d_prime_deviationZ", "GNGd",
                        "Oneback_acc_deviationZ", "back1",
@@ -64,17 +62,14 @@ back2_data <- standardize_clean(back2_data, original_vars)
 
 psyc_variables_continous <- paste0(original_vars, "_z")
 
-# 设置参数
 knots <- 3
 set_fx <- FALSE 
 increments <- 1000
 draws <- 1000
 return_posterior_coefficients <- T
 
-# 初始化结果存储列表
 interaction_results <- list()
 
-# 主循环 - 循环计算所有模型并保存结果
 for (i in 1:nrow(EFvars.set)) {
   int_var <- EFvars.set$varname[i]
   dataname <- paste0(EFvars.set$dataname[i], "_data")
@@ -85,7 +80,6 @@ for (i in 1:nrow(EFvars.set)) {
     
     cat(paste("Processing:", dataname, "~", int_var, "by", smooth_var, "for dependent var:", dependentvar, "\n"))
     
-    # 调用函数，返回后验斜率数据
     result <- gam.varyingcoefficients(
       dependentvar = dependentvar,
       dataname = dataname,
@@ -99,13 +93,11 @@ for (i in 1:nrow(EFvars.set)) {
       return_posterior_coefficients = return_posterior_coefficients
     )
     
-    # 保存结果
     model_name <- paste(EFvars.set$dataname[i], psyc_variables_continous[j], sep = "_")
     interaction_results[[model_name]] <- result
   }
 }
 
-# 保存所有结果为RDS文件
 saveRDS(interaction_results, file = paste0(resultFolder, "/all_interaction_results.rds"))
 
 #interaction_results <- readRDS(paste0(resultFolder, "/all_interaction_results.rds"))
@@ -118,7 +110,6 @@ variable_mapping <- c(
   "SDQ_PB_sum_z" = "Prosocial Behavior"
 )
 
-# 定义统一的主题
 custom_theme <- theme_minimal() +
   theme(
     axis.line = element_line(size = 0.25, color = "black"),
@@ -133,7 +124,6 @@ custom_theme <- theme_minimal() +
     axis.ticks.length = unit(0.05, "cm")
   )
 
-# 初始化一个空的数据框来存储所有模型的转折点结果
 transition_age_summary <- data.frame(
   dataname = character(),
   parcel = character(),
@@ -221,7 +211,6 @@ for (model_name in names(interaction_results)) {
       abs_diff = abs(median_slope - slope_value)
     )
   
-  # 记录转折点
   if (nrow(slope_summary) > 1) {
     for (i in 2:nrow(slope_summary)) {
       prev_sig <- slope_summary$is_significant[i-1]
@@ -240,7 +229,6 @@ for (model_name in names(interaction_results)) {
     }
   }
   
-  # 绘制主图
   slope_plot_main <- ggplot(slope_summary, aes(x = Age_year)) +
     geom_line(aes(y = median_slope), color = "black", size = 0.5) +
     geom_ribbon(aes(ymin = lower_95CI, ymax = upper_95CI), alpha = 0.3, fill = "grey80") +
@@ -257,7 +245,6 @@ for (model_name in names(interaction_results)) {
     ) +
     custom_theme
   
-  # 绘制显著性条形图
   slope_plot_bar <- ggplot(slope_summary, aes(x = Age_year, y = 1)) +
     geom_col(aes(fill = abs_diff), data = filter(slope_summary, is_significant == TRUE),
              width = 1, color = "transparent") +
@@ -277,10 +264,8 @@ for (model_name in names(interaction_results)) {
       plot.margin = margin(t = -15, r = 0, b = 0, l = 0, unit = "pt")
     )
   
-  # 将主图和条形图组合
   final_plot <- plot_grid(slope_plot_main, slope_plot_bar, ncol = 1, rel_heights = c(0.95, 0.05), align = "v")
   
-  # 保存图片
   ggsave(
     filename = paste0(FigureFolder, "/slope_comparison_", current_task, "_", current_variable_raw, ".pdf"),
     plot = final_plot,
@@ -288,8 +273,6 @@ for (model_name in names(interaction_results)) {
   )
 }
 
-
-# 保存转折点总结
 write.csv(transition_age_summary, file = paste0(resultFolder, "/transition_age_summary.csv"), row.names = FALSE)
 print(transition_age_summary)
 

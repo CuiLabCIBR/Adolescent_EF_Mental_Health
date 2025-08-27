@@ -12,7 +12,6 @@ library(ggplot2)
 library(parallel)
 library(patchwork) 
 
-# 设置路径
 wd <- getwd()
 if (str_detect(wd, "cuizaixu_lab")){
   datapath <- '/ibmgpfs/cuizaixu_lab/tanlirou1/Yunfu/YF_EF_psy/interfileFolder'
@@ -26,7 +25,7 @@ if (str_detect(wd, "cuizaixu_lab")){
   resultFolder <- "/Users/tanlirou/Documents/YF_EF_psy/EF_psy/code_pure_202507/results/Figure2_corr_delete_Z"
 }
 
-# 加载自定义函数
+
 source(paste0(functionFolder, "/gamcog_withsmoothvar_deviation.R"))
 
 #head(switch_data)
@@ -160,7 +159,7 @@ corr.result.period.df <- rbind(corr.result.period.df.con)
 corr.result.period.df$correstimate <- as.numeric(corr.result.period.df$correstimate)
 lwth <- min(corr.result.period.df$correstimate, na.rm = TRUE)
 upth <- max(corr.result.period.df$correstimate, na.rm = TRUE)
-y_levels <- c("SDQ_PB_sum_z", "SDQ_H_sum_z", "SDQ_CP_sum_z", "SDQ_PP_sum_z",  "SDQ_ES_sum_z")  # 确保顺序
+y_levels <- c("SDQ_PB_sum_z", "SDQ_H_sum_z", "SDQ_CP_sum_z", "SDQ_PP_sum_z",  "SDQ_ES_sum_z")
 # Initialize the result list
 updated_results <- list()
 
