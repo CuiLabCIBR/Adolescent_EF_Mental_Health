@@ -28,7 +28,7 @@ This research establishes population-level normative developmental charts for ex
 This repository is organized into several steps, reflecting the analytical pipeline of the study:
 
 * `Step1_clean_data/`: Contains scripts for cleaning and preprocessing raw executive function data (Go/No-Go, 1-back, 2-back).
-  * `GNG_clean_yf.asv`, `GNG_clean_yf.mlx`: MATLAB scripts for Go/No-Go data cleaning.
+  * `GNG_clean_yf.mlx`: MATLAB scripts for Go/No-Go data cleaning.
   * `oneback_clean_yf.mlx`, `twoback_clean_yf.mlx`: MATLAB scripts for 1-back and 2-back data cleaning.
   * `check_demo.R`: R script for checking demographic data.
 * `Step2_construct_normative_model/`: Scripts for constructing normative developmental models using GAMLSS.

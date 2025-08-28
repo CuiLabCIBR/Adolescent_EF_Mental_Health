@@ -7,7 +7,7 @@ library(gamm4)
 library(pbkrtest)
 
 pbootint <- function(modelobj, int_var = NA) {
-  numsims <- 1000
+  numsims <- 10000
   set.seed(925)
   
   df <- modelobj$gam$model
@@ -108,7 +108,7 @@ gamm.varyingcoefficients <- function(dependentvar, dataname, smooth_var, int_var
     anova.int.pvalue <- anova_results$`Pr(>Chisq)`[2]
     set.seed(925)
     if (return_posterior_coefficients == T){
-      boots.pvalues <- PBmodcomp(lm.model, lm.model.null, nsim=1000)$test["PBtest","p.value"]
+      boots.pvalues <- PBmodcomp(lm.model, lm.model.null, nsim=10000)$test["PBtest","p.value"]
     }else{
       boots.pvalues <- NA
     }

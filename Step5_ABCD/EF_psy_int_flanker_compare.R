@@ -11,14 +11,12 @@ library(openxlsx)
 library(showtext)
 library(patchwork)
 
-# 文件路径设置
 wd <- getwd()
 if (str_detect(wd, "cuizaixu_lab")){
   datapath <- '/ibmgpfs/cuizaixu_lab/xuxiaoyu/EFdevelopment/Crsen_survey_GD_YunFu/data/EF_results'
   demopath <- '/ibmgpfs/cuizaixu_lab/xuxiaoyu/EFdevelopment/Crsen_survey_GD_YunFu/data/rawdata_results0616'
   interfileFolder <- "/ibmgpfs/cuizaixu_lab/xuxiaoyu/EFdevelopment/Crsen_survey_GD_YunFu/interfileFolder"
   functionFolder <- "/ibmgpfs/cuizaixu_lab/xuxiaoyu/EFdevelopment/Crsen_survey_GD_YunFu/Rcode_EFnorms/functions"
-  
 } else {
   datapath <- '/Users/tanlirou/Documents/YF_EF_psy/EF_psy_2508/interfileFolder/ABCD'
   FigureFolder <- '/Users/tanlirou/Documents/YF_EF_psy/EF_psy_2508/FigureFolder/figure4'
@@ -26,21 +24,16 @@ if (str_detect(wd, "cuizaixu_lab")){
   resultFolder <- "/Users/tanlirou/Documents/YF_EF_psy/EF_psy_2508/results/figure4"
 }
 
-
-# 加载自定义函数
 source(paste0(functionFolder,"/gamm_varyingcoefficients_new.R"))
 
-# 读取数据
-Flanker_data <- read_csv(paste0(datapath, '/Flanker.deviations_addr.csv'))
+Flanker_data <- read_csv(paste0(datapath, '/Flanker.deviations.csv'))
 Flanker_data$Sex <- as.factor(Flanker_data$Sex)
 Flanker_data$Sex <- factor(Flanker_data$Sex, levels = c(1, 2), labels = c("M", "F"))
 
-# 定义变量
 psyc_variables_continous <- c("cbcl_scr_syn_social_r", "cbcl_scr_syn_attention_r", "cbcl_scr_syn_internal_r", "cbcl_scr_syn_external_r")
 EFvars.set <- matrix(c("nihtbx_flanker_uncorrected_deviationZ", "Flanker"), byrow = TRUE, ncol = 2, dimnames = list(NULL, c("varname", "dataname")))
 EFvars.set <- as.data.frame(EFvars.set)
 
-# 数据标准化和异常值处理函数
 standardize_clean <- function(df, vars) {
   for (var in vars) {
     x <- df[[var]]
@@ -55,21 +48,17 @@ standardize_clean <- function(df, vars) {
   return(df)
 }
 
-# 对 Flanker 数据进行标准化和异常值处理
 Flanker_data <- standardize_clean(Flanker_data, psyc_variables_continous)
 psyc_variables_continous <- paste0(psyc_variables_continous, "_z")
 
-# beta table
 beta_table <- read_csv("/Users/tanlirou/Documents/YF_EF_psy/EF_psy_2508/results/figure4/corr_EF_psych_continuous.result_ABCD_withbonf.csv")
 
-# 设置模型参数
 knots <- 3
 set_fx <- TRUE
 increments <- 1000
-draws <- 1000
+draws <- 10000
 return_posterior_coefficients <- TRUE
 
-# 初始化结果存储列表
 interaction_results <- list()
 for (i in 1:nrow(EFvars.set)) {
   int_var <- EFvars.set$varname[i]
@@ -131,7 +120,6 @@ custom_theme <- theme_minimal() +
     axis.ticks.length = unit(0.05, "cm")
   )
 
-# 初始化一个空的数据框来存储所有模型的转折点结果
 transition_age_summary <- data.frame(
   dataname = character(),
   parcel = character(),
@@ -153,7 +141,7 @@ for (model_name in names(interaction_results)) {
     pull(slope)
   
   if (length(slope_value) == 0) {
-    message(paste("找不到 `slope` 列的值，尝试使用 `correstimate`."))
+    message(paste("failed to find `slope` value，try to use `correstimate`."))
     slope_value <- beta_table %>%
       filter(parcel == current_variable_raw) %>%
       pull(correstimate)
@@ -175,7 +163,6 @@ for (model_name in names(interaction_results)) {
   all_slope_summaries[[model_name]] <- slope_summary_temp
 }
 
-# 确定统一的全局颜色范围
 global_abs_diff_range <- range(do.call(rbind, all_slope_summaries)$abs_diff, na.rm = TRUE)
 
 for (model_name in names(interaction_results)) {
@@ -203,7 +190,6 @@ for (model_name in names(interaction_results)) {
   
   current_slope_data <- result[[2]]
   
-  # 计算每个年龄点的斜率中位数、95% CI，并进行显著性检验
   slope_summary <- current_slope_data %>%
     group_by(Age_year) %>%
     summarise(
@@ -218,7 +204,6 @@ for (model_name in names(interaction_results)) {
       abs_diff = abs(median_slope - slope_value)
     )
   
-  # 查找并记录转折点
   if (nrow(slope_summary) > 1) {
     for (i in 2:nrow(slope_summary)) {
       prev_sig <- slope_summary$is_significant[i-1]
@@ -252,7 +237,6 @@ for (model_name in names(interaction_results)) {
   min_y <- - 0.10
   max_y <-  0.06
   # 
-  # 绘图
   slope_plot_main <- ggplot(slope_summary, aes(x = Age_year)) +
     geom_line(aes(y = median_slope), color = "black", size = 0.5) +
     geom_ribbon(aes(ymin = lower_95CI, ymax = upper_95CI), alpha = 0.3, fill = "grey80") +
@@ -269,7 +253,6 @@ for (model_name in names(interaction_results)) {
     ) +
     custom_theme
   
-  # 绘制显著性条形图（子图）
   slope_plot_bar <- ggplot(slope_summary, aes(x = Age_year, y = 1)) +
     geom_col(aes(fill = abs_diff), data = filter(slope_summary, is_significant == TRUE),
              width = 1, color = "transparent") +
@@ -289,7 +272,6 @@ for (model_name in names(interaction_results)) {
       plot.margin = margin(t = -15, r = 0, b = 0, l = 0, unit = "pt")
     )
   
-  # 合并主图和子图并保存
   final_plot <- plot_grid(slope_plot_main, slope_plot_bar, ncol = 1, rel_heights = c(0.95, 0.05), align = "v")
   final_plot
   ggsave(
