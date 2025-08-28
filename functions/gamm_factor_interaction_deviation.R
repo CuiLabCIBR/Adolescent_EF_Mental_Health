@@ -9,7 +9,7 @@ library(psych)
 library(cAIC4)
 
 pbootint <- function(modelobj, int_var=NA){
-  numsims <- 1000
+  numsims <- 10000
   set.seed(123)
   df <- modelobj$gam$model
   thisResp <- as.character(modelobj$gam$terms[[2]])
@@ -127,7 +127,7 @@ gamm.smooth.predict.interaction <- function(dependentvar, dataname, smoothvar, i
     gamm.independent.pvalue <- NA
     slope <- lm.results$coefficients[2,1]
     set.seed(123)
-    boots.pvalues <- PBmodcomp(lm.model, lm.model.null, nsim=1000)$test["PBtest","p.value"]
+    boots.pvalues <- PBmodcomp(lm.model, lm.model.null, nsim=10000)$test["PBtest","p.value"]
     # interaction effect size
     sse.model <- sum(residuals(lm.model)^2)
     sse.nullmodel <- sum(residuals(lm.model.null)^2)

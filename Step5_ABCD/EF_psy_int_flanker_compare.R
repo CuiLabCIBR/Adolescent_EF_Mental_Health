@@ -13,10 +13,10 @@ library(patchwork)
 
 wd <- getwd()
 if (str_detect(wd, "cuizaixu_lab")){
-  datapath <- '/ibmgpfs/cuizaixu_lab/xuxiaoyu/EFdevelopment/Crsen_survey_GD_YunFu/data/EF_results'
-  demopath <- '/ibmgpfs/cuizaixu_lab/xuxiaoyu/EFdevelopment/Crsen_survey_GD_YunFu/data/rawdata_results0616'
-  interfileFolder <- "/ibmgpfs/cuizaixu_lab/xuxiaoyu/EFdevelopment/Crsen_survey_GD_YunFu/interfileFolder"
-  functionFolder <- "/ibmgpfs/cuizaixu_lab/xuxiaoyu/EFdevelopment/Crsen_survey_GD_YunFu/Rcode_EFnorms/functions"
+  datapath <- '/GPFS/cuizaixu_lab_permanent/xuhaoshu/datasets/Adolescent_EF_Mental_Health/ABCD/data'
+  FigureFolder <- '/GPFS/cuizaixu_lab_permanent/xuhaoshu/datasets/Adolescent_EF_Mental_Health/ABCD/figures'
+  functionFolder <- "/GPFS/cuizaixu_lab_permanent/xuhaoshu/Adolescent_EF_Mental_Health/functions"
+  resultFolder <- "/GPFS/cuizaixu_lab_permanent/xuhaoshu/datasets/Adolescent_EF_Mental_Health/ABCD/results"
 } else {
   datapath <- '/Users/tanlirou/Documents/YF_EF_psy/EF_psy_2508/interfileFolder/ABCD'
   FigureFolder <- '/Users/tanlirou/Documents/YF_EF_psy/EF_psy_2508/FigureFolder/figure4'

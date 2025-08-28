@@ -13,10 +13,10 @@ library(dplyr)
 # input directory
 wd <- getwd()
 if (str_detect(wd, "cuizaixu_lab")){
-  datapath <- '/ibmgpfs/cuizaixu_lab/tanlirou1/Yunfu/ABCD_verify/interfileFolder'
-  interfileFolder <- "/ibmgpfs/cuizaixu_lab/tanlirou1/Yunfu/ABCD_verify/interfileFolder"
-  functionFolder <- "/ibmgpfs/cuizaixu_lab/tanlirou1/Yunfu/ABCD_verify/Rcode/functions_corr"
-  resultFolder <- "/ibmgpfs/cuizaixu_lab/tanlirou1/Yunfu/ABCD_verify/interfileFolder/corr"
+  datapath <- '/GPFS/cuizaixu_lab_permanent/xuhaoshu/datasets/Adolescent_EF_Mental_Health/ABCD/data'
+  FigureFolder <- '/GPFS/cuizaixu_lab_permanent/xuhaoshu/datasets/Adolescent_EF_Mental_Health/ABCD/figures'
+  functionFolder <- "/GPFS/cuizaixu_lab_permanent/xuhaoshu/Adolescent_EF_Mental_Health/functions"
+  resultFolder <- "/GPFS/cuizaixu_lab_permanent/xuhaoshu/datasets/Adolescent_EF_Mental_Health/ABCD/results"
 }else{
   datapath <- '/Users/tanlirou/Documents/YF_EF_psy/EF_psy_2508/interfileFolder/ABCD'
   FigureFolder <- '/Users/tanlirou/Documents/YF_EF_psy/EF_psy_2508/FigureFolder/figure4'
@@ -28,12 +28,12 @@ if (str_detect(wd, "cuizaixu_lab")){
 # source functions
 source(paste0(functionFolder, "/gamm_factor_interaction_deviation.R"))
 
-Flanker_data <- read_csv(paste0(datapath, '/Flanker.deviations_addr.csv'))
+Flanker_data <- read_csv(paste0(datapath, '/Flanker.deviations.csv'))
 Flanker_data <- as.data.frame(Flanker_data)
 
 ## 1) set up variables
-psyc_variables_continous <- c("cbcl_scr_syn_internal_r","cbcl_scr_syn_social_r",
-                              "cbcl_scr_syn_external_r","cbcl_scr_syn_attention_r")
+psyc_variables_continous <- c("cbcl_scr_syn_internal_t","cbcl_scr_syn_social_t",
+                              "cbcl_scr_syn_external_t","cbcl_scr_syn_attention_t")
 # EF vars
 EFvar <- "nihtbx_flanker_uncorrected_deviationZ"
 ## 2) convert variables class & describe variables
@@ -57,8 +57,8 @@ standardize_clean <- function(df, vars) {
   return(df)
 }
 
-original_vars <- c("cbcl_scr_syn_internal_r","cbcl_scr_syn_social_r",
-                   "cbcl_scr_syn_external_r","cbcl_scr_syn_attention_r")
+original_vars <- c("cbcl_scr_syn_internal_t","cbcl_scr_syn_social_t",
+                   "cbcl_scr_syn_external_t","cbcl_scr_syn_attention_t")
 
 Flanker_data  <- standardize_clean(Flanker_data,  original_vars)
 
