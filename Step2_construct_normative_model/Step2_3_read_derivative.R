@@ -1,22 +1,20 @@
 rm(list = ls())
 library(tidyverse)
 library(ggplot2)
-
-## ========= Path settings =========
 wd <- getwd()
-if (grepl("cuizaixu_lab", wd)) {
-  interfileFolder <- "/ibmgpfs/cuizaixu_lab/tanlirou1/Yunfu/YF_final/interfileFolder"
+if (str_detect(wd,"cuizaixu_lab")) {
+  interfileFolder <- " "
 } else {
   interfileFolder <- " "   
 }
 
 ## ========= Select TASK (uncomment one at a time) =========
-# ---- Go/No-Go ----
-TASK <- list(
-  out_subdir = "GNGd_prime",  # Subfolder containing bootstrap .rds files
-  label      = "Go/No-Go",    # Used for figure titles
-  file_tag   = "GNGd"         # Used for file names
-)
+# # ---- Go/No-Go ----
+# TASK <- list(
+#   out_subdir = "GNGd_prime",  # Subfolder containing bootstrap .rds files
+#   label      = "Go/No-Go",    # Used for figure titles
+#   file_tag   = "GNGd"         # Used for file names
+# )
 
 # # ---- 1-back ----
 # TASK <- list(
@@ -31,6 +29,13 @@ TASK <- list(
 #   label      = "2-back",
 #   file_tag   = "back2"
 # )
+
+# ---- Flanker ----
+TASK <- list(
+  out_subdir = "Flanker",
+  label      = "Flanker",
+  file_tag   = "Flanker"
+)
 
 ## ========= Directories & file list =========
 bootstrap_dir <- file.path(interfileFolder, "bootstrap", TASK$out_subdir)

@@ -10,10 +10,10 @@ library(dplyr)
 
 wd <- getwd()
 if (str_detect(wd, "cuizaixu_lab")) {
-  datapath        <- "/ibmgpfs/cuizaixu_lab/tanlirou1/Yunfu/YF_final/data"
-  interfileFolder <- "/ibmgpfs/cuizaixu_lab/tanlirou1/Yunfu/YF_final/interfileFolder"
-  functionFolder  <- "/ibmgpfs/cuizaixu_lab/tanlirou1/Yunfu/YF_final/function"
-  resultFolder    <- "/ibmgpfs/cuizaixu_lab/tanlirou1/Yunfu/YF_final/results"
+  datapath        <- " "
+  interfileFolder <- " "
+  functionFolder  <- " "
+  resultFolder    <- " "
 } else {
   datapath        <- " "
   interfileFolder <- " "
@@ -21,8 +21,8 @@ if (str_detect(wd, "cuizaixu_lab")) {
   resultFolder    <- " "
 }
 
-## ---- Source custom functions ----
-source(file.path(functionFolder, "Compare_distributions_gamlss_new.R"))
+## ---- Source function ----
+source(file.path(functionFolder, "Compare_distributions_gamlss.R"))
 
 ## ---- Load data ----
 GNG_data   <- read_xlsx(file.path(datapath, "Q_GNG.xlsx"))
@@ -36,10 +36,9 @@ bs.df      <- 3
 covariates <- "Sex"
 randomvar  <- NA
 
-## Ensure factor types per dataset (keep explicit, no function/loop)
-if ("Sex" %in% names(GNG_data))      GNG_data$Sex      <- as.factor(GNG_data$Sex)
-if ("Sex" %in% names(back1_data))    back1_data$Sex    <- as.factor(back1_data$Sex)
-if ("Sex" %in% names(back2_data))    back2_data$Sex    <- as.factor(back2_data$Sex)
+GNG_data$Sex      <- as.factor(GNG_data$Sex)
+back1_data$Sex    <- as.factor(back1_data$Sex)
+back2_data$Sex    <- as.factor(back2_data$Sex)
 
 # =====================================================================================
 # Step 1. Select best distribution family (three tasks written separately)

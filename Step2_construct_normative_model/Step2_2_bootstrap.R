@@ -8,46 +8,46 @@ library(gamlss)
 library(scales)
 wd <- getwd()
 if (str_detect(wd, "cuizaixu_lab")) {
-  datapath        <- "/ibmgpfs/cuizaixu_lab/tanlirou1/Yunfu/YF_final/data"
-  interfileFolder <- "/ibmgpfs/cuizaixu_lab/tanlirou1/Yunfu/YF_final/interfileFolder"
-  functionFolder  <- "/ibmgpfs/cuizaixu_lab/tanlirou1/Yunfu/YF_final/function"
-  resultFolder    <- "/ibmgpfs/cuizaixu_lab/tanlirou1/Yunfu/YF_final/results"
+  datapath        <- " "
+  interfileFolder <- " "
+  functionFolder  <- " "
+  resultFolder    <- " "
 } else {
-  datapath        <- " "   # <- 本地路径记得填
+  datapath        <- " "   
   interfileFolder <- " "
   functionFolder  <- " "
   resultFolder    <- " "
 }
 
-## ==== Source helpers ====
-source(file.path(functionFolder, "Compare_distributions_gamlss_new.R"))
+## ==== Source function ====
+source(file.path(functionFolder, "Compare_distributions_gamlss.R"))
 
 ## ==== TASK ====
-# GNG
+# # GNG
 # TASK <- list(
 #   datafile         = "Q_GNG.xlsx",
 #   dataname         = "GNG_data",
 #   smoothvar        = "Age_year",
-#   covariates_hint  = "Sex",            
+#   covariates_hint  = "Sex",
 #   modelsum_file    = "modelsum_GNGd_prime_bsdf.rds",
 #   performance_file = "performance_GNGd_prime_bsdf.csv",
 #   efvar_label      = "GNGd",
-#   out_subdir       = "GNGd_prime"     
+#   out_subdir       = "GNGd_prime"
 # )
 
-# 1-back 示例（如需切换，把上面 TASK 替换为这段，但 out_subdir 如需沿用原有目录名也可不变）
-TASK <- list(
-  datafile         = "Q_1back.xlsx",
-  dataname         = "back1_data",
-  smoothvar        = "Age_year",
-  covariates_hint  = "Sex",
-  modelsum_file    = "modelsum_1backAcc_bsdf.rds",
-  performance_file = "performance_1backAcc_bsdf.csv",
-  efvar_label      = "1back",
-  out_subdir       = "1-back"
-)
+# # 1-back
+# TASK <- list(
+#   datafile         = "Q_1back.xlsx",
+#   dataname         = "back1_data",
+#   smoothvar        = "Age_year",
+#   covariates_hint  = "Sex",
+#   modelsum_file    = "modelsum_1backAcc_bsdf.rds",
+#   performance_file = "performance_1backAcc_bsdf.csv",
+#   efvar_label      = "1back",
+#   out_subdir       = "1-back"
+# )
 
-# # 2-back 示例
+# # 2-back
 # TASK <- list(
 #   datafile         = "Q_2back.xlsx",
 #   dataname         = "back2_data",
@@ -56,7 +56,7 @@ TASK <- list(
 #   modelsum_file    = "modelsum_2backAcc_bsdf.rds",
 #   performance_file = "performance_2backAcc_bsdf.csv",
 #   efvar_label      = "2back",
-#   out_subdir       = "2-back" 
+#   out_subdir       = "2-back"
 # )
 
 ## =================== Load data ===================
@@ -170,6 +170,6 @@ bootstrap_centiles <- list(
 ## =================== Save (path & filename unchanged) ===================
 outdir <- file.path(interfileFolder, "bootstrap", TASK$out_subdir)
 if (!dir.exists(outdir)) dir.create(outdir, recursive = TRUE)
-saveRDS(bootstrap_centiles, file.path(outdir, sprintf("centile_bootstrap_%s.rds", n)))
+saveRDS(bootstrap_centiles, file.path(outdir, sprintf("%s_centile_bootstrap_%s.rds",TASK$efvar_label, n)))
 
 cat("Bootstrap", n, "finished!\n")

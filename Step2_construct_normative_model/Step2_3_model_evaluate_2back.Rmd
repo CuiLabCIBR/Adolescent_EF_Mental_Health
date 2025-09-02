@@ -1,0 +1,266 @@
+---
+title: "Step2_3_nommodel_evaluation"
+output: html_document
+---
+In the first 2 steps, we selected the best distribution and degree of freedom via BIC. Now we are gonna use this script to perform model evaluation, sensitivity analyses, and visualization of normative trajectories.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+rm(list=ls())
+library(ggplot2)
+library(tidyverse)
+library(mgcv)
+library(readxl)
+library(parallel)
+library(gamlss)
+library(scales)
+library(stringr)
+# input directory
+wd <- getwd()
+if (str_detect(wd, "cuizaixu_lab")){
+  datapath <- ' '
+  interfileFolder <- ' '
+  resultFolder <- ' '
+  FigureFolder <- ' '
+}else{
+  datapath <- ' '
+  demopath <- ' '
+  FigureFolder <- ' '
+  interfileFolder <- ' '
+  functionFolder <- ' '
+  resultFolder <- ' '
+  
+}
+
+back2_data <- read_xlsx(paste0(datapath, "/Q_2back.xlsx"))
+```
+
+# Step2_3. Model evaluation
+## 1. Model diagnosis
+The normalized quantile residuals of our normative model were also checked to evaluate the goodness of fit by utilizing two diagnostic methods. 1) Inspect four plots related to residuals. The residuals against the fitted values of mu and the index were evenly distributed around the horizontal line at 0. Moreover, the kernel density estimation of the residuals displayedan approximate normal distribution, and the normal quantile-quantile (Q-Q) plots exhibitedan approximately linear trend with an intercept of 0 and a slope of 1. 2) Adopt the detrended transformed Owen’s plots of the fitted normalized quantile residuals to evaluate the performance of the models. The function uses Owen’s method to construct a nonparametric confidence interval for the true distribution.The zero horizontal line was within the confidence intervals, suggesting that the residuals followed a normal distribution. Taken together, these results showed that our model fits the sample data appropriately.
+
+```{r model_diagnosis}
+# 1. Oneback Acc
+# visualize the distribution of dependent variable
+plot(density(back2_data$Twoback_acc), main = "Density Plot of 2-back", xlab = "Value", col = "blue")
+# load models
+performance_2backAcc_distribution <- read.csv(paste0(resultFolder, "/performance_2backAcc_distribution.csv"))
+modelsum_2backAcc_distribution <- readRDS(paste0(resultFolder, "/modelsum_2backAcc_distribution.rds"))
+performance_2backAcc_bsdf <- read.csv(paste0(resultFolder, "/performance_2backAcc_bsdf.csv"))
+modelsum_2backAcc_bsdf <- readRDS(paste0(resultFolder, "/modelsum_2backAcc_bsdf.rds"))
+# performance bic
+## ------------------- Distribution: ΔBIC -------------------
+d1 <- performance_2backAcc_distribution %>%
+  drop_na() %>%
+  filter(converged == TRUE) %>%
+  arrange(BIC) %>%                
+  slice_head(n = 10) %>%          
+  mutate(delta_BIC = BIC - max(BIC))   
+
+max_abs <- max(abs(d1$delta_BIC), na.rm = TRUE)
+exp1    <- ifelse(max_abs == 0, 0, floor(log10(max_abs)))
+scale1  <- if (exp1 == 0) 1 else 10^exp1
+d1$delta_BIC_scaled <- d1$delta_BIC / scale1
+ylab_txt <- if (exp1 == 0) expression(Delta * BIC) else bquote(Delta * BIC ~ "(×" ~ 10^.(exp1) ~ ")")
+
+d1$distribution <- factor(d1$distribution, levels = d1$distribution)
+
+ggplot(d1, aes(x = distribution, y = delta_BIC_scaled)) +
+  geom_bar(stat = "identity", fill = "#A4C5DF", color = "black", width = 0.7) +
+  labs(title = "2-back", x = "Distribution", y = ylab_txt) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 9, hjust = 0.5),
+    axis.text.x = element_text(size = 9, angle = 45, hjust = 1, color = "black"),
+    axis.text.y = element_text(size = 9, color = "black"),
+    axis.title  = element_text(size = 9, color = "black"),
+    axis.ticks = element_line(color = "black", linewidth = 0.25),
+    axis.ticks.length = unit(-0.1, "cm"),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5)
+  ) +
+  scale_x_discrete(expand = expansion(mult = 0.1)) +
+  scale_y_continuous(limits = c(min(d1$delta_BIC_scaled, na.rm = TRUE)*1.05, 0), expand = c(0, 0))
+
+ggsave(paste0(FigureFolder, "/2-back/distribution_BIC_2backAcc.pdf"), width=9, height=7, units = "cm")
+ggsave(paste0(FigureFolder, "/2-back/distribution_BIC_2backAcc.tiff"), width=9, height=7, units = "cm")
+
+## ------------------- Degrees of freedom comparison: ΔBIC -------------------
+d2 <- performance_2backAcc_bsdf %>%
+  drop_na() %>%
+  filter(converged == TRUE) %>%
+  arrange(BIC) %>%                 
+  slice_head(n = 10) %>%          
+  mutate(
+    delta_BIC = BIC - max(BIC),   
+    bsdf = paste0("mu", mu.df, "_sigma", sigma.df, "_degree", degree)
+  )
+
+max_abs2 <- max(abs(d2$delta_BIC), na.rm = TRUE)
+exp2     <- ifelse(max_abs2 == 0, 0, floor(log10(max_abs2)))
+scale2   <- if (exp2 == 0) 1 else 10^exp2
+d2$delta_BIC_scaled <- d2$delta_BIC / scale2
+ylab_txt2 <- if (exp2 == 0) expression(Delta * BIC) else bquote(Delta * BIC ~ "(×" ~ 10^.(exp2) ~ ")")
+
+d2$bsdf <- factor(d2$bsdf, levels = d2$bsdf)
+
+ggplot(d2, aes(x = bsdf, y = delta_BIC_scaled)) +
+  geom_bar(stat = "identity", fill = "#A4C5DF", color = "black", width = 0.7) +
+  labs(title = "2-back", x = "Degrees of freedom", y = ylab_txt2) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 9, hjust = 0.5),
+    axis.text.x = element_text(size = 9, angle = 45, hjust = 1, color = "black"),
+    axis.text.y = element_text(size = 9, color = "black"),
+    axis.title  = element_text(size = 9, color = "black"),
+    axis.ticks = element_line(color = "black", linewidth = 0.25),
+    axis.ticks.length = unit(-0.1, "cm"),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5)
+  ) +
+  scale_x_discrete(expand = expansion(mult = 0.1)) +
+  scale_y_continuous(limits = c(min(d2$delta_BIC_scaled, na.rm = TRUE)*1.05, 0), expand = c(0, 0))
+
+ggsave(paste0(FigureFolder, "/2-back/bsdf_DeltaBIC_2backAcc.pdf"),  width=9, height=7, units="cm")
+ggsave(paste0(FigureFolder, "/2-back/bsdf_DeltaBIC_2backAcc.tiff"), width=9, height=7, units="cm")
+```
+
+Residual plots & Q-Q plots
+
+```{r residual_plots}
+model.2backAcc <- modelsum_2backAcc_bsdf[[which.min(performance_2backAcc_bsdf$BIC)]]
+summary(model.2backAcc)
+mu.formula <- as.character(model.2backAcc$mu.formula)[3]
+sigma.formula <- as.character(model.2backAcc$sigma.formula)[2]
+print(paste0("The best distribution of gamlss for ",str_split_i(as.character(model.2backAcc$mu.formula), "~", 1)[2], " is ", model.2backAcc$family[1], "; the best mu.df is ", substr(mu.formula, regexpr("\\)", mu.formula)-1, regexpr("\\)", mu.formula)-1), ", sigma.df is ", substr(sigma.formula, regexpr("\\)", sigma.formula)-1, regexpr("\\)", mu.formula)-1), "."))
+print(paste0("Diagnosis.1, model of ", str_split_i(as.character(model.2backAcc$mu.formula), "~", 1)[2], " is converged."))
+
+# residual plots & Q-Q plots
+pdf(paste0(FigureFolder, "/2-back/diagnosis_mod_", str_split_i(as.character(model.2backAcc$mu.formula), "~", 1)[2], ".pdf"), width = 14/2.54, height = 8/2.54, pointsize = 9)
+newpar <-par(mfrow = c(2, 2), mar = c(3, 3, 2, 1), mgp   = c(1.5, 0.1, 0), tck = 0.02,
+              col.axis = "black", col = "black", col.main = "black",
+              col.lab = "black", pch = 1, cex = 1, cex.lab = 1,
+              cex.axis = 1, cex.main = 1)
+plot(model.2backAcc, par = newpar )
+dev.off()
+# Detrended transformed Owen’s plots
+pdf(paste0(FigureFolder, "/2-back/diagnosis_owenplot_mod_", str_split_i(as.character(model.2backAcc$mu.formula), "~", 1)[2], ".pdf"), width = 9/2.54, height = 7/2.54, pointsize = 9)
+newpar <- par(mar = c(3, 3, 2, 1), mgp = c(1.5, 0.1, 0), tck = 0.02, cex = 1, cex.lab = 1, cex.axis = 1, cex.main = 1,
+     col = "black", col.axis = "black", col.lab = "black", col.main = "black")
+dtop(model.2backAcc, par = newpar)
+dev.off()
+
+```
+
+## 2. Model sensitivity analyses (bootstrap)
+To determine reliability and stability of our GAMLSS fitted trajectories, and to obtain confidence intervals on all parameter estimates obtained from the GAMLSS fitting procedure as described above, we ran 10,000 bootstrap iterations with stratified sampling with replacement. The bootstrap replicates were stratified by sex, which maintains the relative proportions of the original datasets.
+
+```{r bootstrap}
+# 1. Oneback Acc
+bootstrapdir <- paste0(interfileFolder, "/bootstrap/2-back")
+centile_female_boot <- list()
+centile_male_boot <- list()
+centile_boot <- list()
+for (i in 1:10000) {
+  centile.tmp <- readRDS(paste0(bootstrapdir, "/2back_centile_bootstrap_", i, ".rds"))
+  if (centile.tmp$converged==T){
+    centile_female_boot[[i]] <- centile.tmp$Centiles_female
+    centile_male_boot[[i]] <- centile.tmp$Centiles_male
+    centile_boot[[i]] <- (centile.tmp$Centiles_female+centile.tmp$Centiles_male) / 2
+  }else{
+    centile_female_boot[[i]] <- NA
+    centile_male_boot[[i]] <- NA
+    centile_boot[[i]] <- NA
+  }
+}
+print(paste0(length(which(is.na(centile_female_boot))), " iterations are not converged."))
+# remove NA elements
+centile_female_boot <- centile_female_boot[!is.na(centile_female_boot)]
+centile_male_boot <- centile_male_boot[!is.na(centile_male_boot)]
+centile_boot <- centile_boot[!is.na(centile_boot)]
+
+centile_female_boot_3d <- array(unlist(centile_female_boot), dim = c(9, ncol(centile.tmp$Centiles_female), length(centile_female_boot)))
+centile_male_boot_3d <- array(unlist(centile_male_boot), dim = c(9, ncol(centile.tmp$Centiles_male), length(centile_male_boot)))
+centile_boot_3d <- array(unlist(centile_boot), dim = c(9, ncol(centile.tmp$Centiles_female), length(centile_boot)))
+
+quantile.median <- data.frame(matrix(NA, ncol(centile.tmp$Centiles_female), 9*3))
+names(quantile.median) <- c(paste0("female_", rownames(centile.tmp$Centiles_female)), paste0("male_", rownames(centile.tmp$Centiles_female)), paste0("all_", rownames(centile.tmp$Centiles_female)))
+quantile.P2.5 <- data.frame(matrix(NA, ncol(centile.tmp$Centiles_female), 9*3))
+names(quantile.P2.5) <- c(paste0("female_", rownames(centile.tmp$Centiles_female)), paste0("male_", rownames(centile.tmp$Centiles_female)), paste0("all_", rownames(centile.tmp$Centiles_female)))
+quantile.P97.5 <- data.frame(matrix(NA, ncol(centile.tmp$Centiles_female), 9*3))
+names(quantile.P97.5) <- c(paste0("female_", rownames(centile.tmp$Centiles_female)), paste0("male_", rownames(centile.tmp$Centiles_female)), paste0("all_", rownames(centile.tmp$Centiles_female)))
+
+for (i in 1:9) {
+  # female
+  ## median
+  quantile_female.vec <- centile_female_boot_3d[i, , ]
+  quantile_female.median <- lapply(1:dim(quantile_female.vec)[1], function(x) median(quantile_female.vec[x,]))
+  quantile_female.median <- unlist(quantile_female.median)
+  quantile.median[,i] <- quantile_female.median
+  ## P2.5
+  quantile_female.P2.5 <- lapply(1:dim(quantile_female.vec)[1], function(x) quantile(quantile_female.vec[x,], probs=0.025))
+  quantile_female.P2.5 <- unlist(quantile_female.P2.5)
+  quantile.P2.5[,i] <- quantile_female.P2.5
+  ## P97.5
+  quantile_female.P97.5 <- lapply(1:dim(quantile_female.vec)[1], function(x) quantile(quantile_female.vec[x,], probs=0.975))
+  quantile_female.P97.5 <- unlist(quantile_female.P97.5)
+  quantile.P97.5[,i] <- quantile_female.P97.5
+  
+  # male
+  ## median
+  quantile_male.vec <- centile_male_boot_3d[i, , ]
+  quantile_male.median <- lapply(1:dim(quantile_male.vec)[1], function(x) median(quantile_male.vec[x,]))
+  quantile_male.median <- unlist(quantile_male.median)
+  quantile.median[,i+9] <- quantile_male.median
+  ## P2.5
+  quantile_male.P2.5 <- lapply(1:dim(quantile_male.vec)[1], function(x) quantile(quantile_male.vec[x,], probs=0.025))
+  quantile_male.P2.5 <- unlist(quantile_male.P2.5)
+  quantile.P2.5[,i+9] <- quantile_male.P2.5
+  ## P97.5
+  quantile_male.P97.5 <- lapply(1:dim(quantile_male.vec)[1], function(x) quantile(quantile_male.vec[x,], probs=0.975))
+  quantile_male.P97.5 <- unlist(quantile_male.P97.5)
+  quantile.P97.5[,i+9] <- quantile_male.P97.5
+  
+  # all
+  ## median
+  quantile.vec <- centile_boot_3d[i, , ]
+  quantile_all.median <- lapply(1:dim(quantile.vec)[1], function(x) median(quantile.vec[x,]))
+  quantile_all.median <- unlist(quantile_all.median)
+  quantile.median[,i+18] <- quantile_all.median
+  ## P2.5
+  quantile_all.P2.5 <- lapply(1:dim(quantile.vec)[1], function(x) quantile(quantile.vec[x,], probs=0.025))
+  quantile_all.P2.5 <- unlist(quantile_all.P2.5)
+  quantile.P2.5[,i+18] <- quantile_all.P2.5
+  ## P97.5
+  quantile_all.P97.5 <- lapply(1:dim(quantile.vec)[1], function(x) quantile(quantile.vec[x,], probs=0.975))
+  quantile_all.P97.5 <- unlist(quantile_all.P97.5)
+  quantile.P97.5[,i+18] <- quantile_all.P97.5
+  
+}
+
+n_points <- nrow(quantile.median)
+quantile.median$age <- seq(min(back2_data$Age_year), max(back2_data$Age_year), length.out = n_points)
+quantile.P2.5$age <- seq(min(back2_data$Age_year), max(back2_data$Age_year), length.out = n_points)
+quantile.P97.5$age <- seq(min(back2_data$Age_year), max(back2_data$Age_year), length.out = n_points)
+
+# plot
+ggplot()+
+  geom_point(data = back2_data, aes(x = Age_year, y = Twoback_acc), color = "grey", alpha = 0.3, width = 0, height = 0.1) +
+  geom_line(data=quantile.median, aes(x=age, y=all_quantiles0.5), linetype="solid", linewidth=0.5)+
+  geom_line(data=quantile.P2.5, aes(x=age, y=all_quantiles0.5), linetype=2, linewidth = 0.25, color = "red")+
+  geom_line(data=quantile.P97.5, aes(x=age, y=all_quantiles0.5), linetype=2, linewidth = 0.25, color = "red")+
+  labs(x="Age(years)", y="Acc", title="Bootstrap 95% CI of 2-back")+
+  theme_classic()+
+  scale_x_continuous(name="Age(years)", limits = c(11, 18),breaks = seq(11, 18, by = 2))+
+  theme(plot.title = element_text(size=9, hjust=0.5, color = "black"),
+        axis.text = element_text(size=9), axis.title = element_text(size=9), color = "black")
+ggsave(paste0(FigureFolder, "/2-back/bootstrap_P50_95CI_2backAcc_all.tiff"), width=7, height=6, units = "cm")
+ggsave(paste0(FigureFolder, "/2-back/bootstrap_P50_95CI_2backAcc_all.pdf"), width=7, height=6, units = "cm")
+```
+
+
+
+
+
