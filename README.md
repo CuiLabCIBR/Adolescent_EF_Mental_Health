@@ -49,7 +49,7 @@ This repository is organized into several steps, reflecting the analytical pipel
   + `Step5_2_4_construct_model_Flanker.R`: R script for constructing the final normative model and calculating deviation scores for flanker task.
   + `Step5_2_5_plot_Normativemodel_Flanker.R`: R script for plotting the GAMLSS normative curve of ABCD datasets.
   + `Step5_3_EF_psychiatry_corr_flanker.R`: R script for correlation and slope analysis between EF deviation scores(flanker task) and mental health outcomes.
-  + `Step4_EF_psy_int_flanker_compare.R`: R script for fitting varying-coefficient models to analyze age-specific associations with random effects considered.
+  + `Step5_4_EF_psy_int_flanker_compare.R`: R script for fitting varying-coefficient models to analyze age-specific associations with random effects considered.
 
 + `functions/`: Contains custom R functions used across different analysis steps.
   + `Compare_distributions_gamlss.R`: R functions to compare GAMLSS with different distributions and degrees of freedom for model selection.
