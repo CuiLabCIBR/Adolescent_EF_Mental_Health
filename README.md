@@ -14,11 +14,11 @@ This repository contains the code and data analysis scripts associated with the 
 
 ## About This Study
 
-This research establishes population-level normative developmental charts for executive function (EF) across adolescence (ages 11-18 years) and investigates how deviations from these norms relate to age-specific mental health symptoms. We utilized a large Chinese adolescent cohort (A-HELP study, N=33,650) and replicated findings in an independent U.S. cohort (Adolescent Brain Cognitive Development (ABCD) study, N=11,715). We assessed inhibitory control (Go/No-Go task) and working memory (1-back, 2-back tasks) and correlated EF deviations with various mental health dimensions measured by the Strengths and Difficulties Questionnaire (SDQ).
+This research establishes population-level normative developmental charts for executive function (EF) across adolescence (ages 11-18 years) and investigates how deviations from these norms relate to age-specific mental health symptoms. We utilized a large Chinese adolescent cohort (A-HELP study, N=33,622) and replicated findings in an independent U.S. cohort (Adolescent Brain Cognitive Development (ABCD) study, N=11,549). We assessed inhibitory control (Go/No-Go task) and working memory (1-back, 2-back tasks) and correlated EF deviations with various mental health dimensions measured by the Strengths and Difficulties Questionnaire (SDQ).
 
 ## Key Findings
 
-* In a study of over 33,650 Chinese adolescents, all three EF tasks (Go/No-Go, 1-back, 2-back) showed age-related improvements with decreasing inter-individual variability.
+* In a study of over 33,622 Chinese adolescents, all three EF tasks (Go/No-Go, 1-back, 2-back) showed age-related improvements with decreasing inter-individual variability.
 * Higher EF deviation scores (indicating better-than-expected performance relative to age norms) were significantly associated with fewer peer problems, conduct problems, lower hyperactivity/inattention, and greater prosocial behavior.
 * Age-specific analyses revealed that these associations varied across development, with stronger effect sizes observed in early adolescence (approximately ages 11-13) that declined by late adolescence.
 * Findings were replicated in a large U.S. adolescent sample from the ABCD study, showing consistent developmental patterns and EF-mental health associations.
