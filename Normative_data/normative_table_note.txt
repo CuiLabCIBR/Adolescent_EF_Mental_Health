@@ -2,8 +2,8 @@ Normative Table Notes
 
 Each normative table provides age- and sex-specific estimates from the final normative model. The columns are:
 
-Age, Sex, mu, sigma, nu, tau, P5, P25, P50, P75, P95
+Age, Sex, mu, sigma, P5, P25, P50, P75, P95
 
-In this model, μ represents the location parameter, σ represents the scale parameter controlling the dispersion of the outcome distribution, and ν and τ describe skewness and tail behavior. Together, these parameters define the full age- and sex-specific distribution of EF measures. The percentile columns (P5–P95) are derived from the same full-sample model and provide a consistent normative reference.
+In this model, μ represents the location parameter, σ represents the scale parameter controlling the dispersion of the outcome distribution. Together, these parameters define the full age- and sex-specific distribution of EF measures. The percentile columns (P5–P95) are derived from the same full-sample model and provide a consistent normative reference.
 
 The right panels of Figure 1 additionally display bootstrap-based σ trajectories with uncertainty bands. These are obtained by refitting the same model on resampled datasets and summarizing σ estimates across bootstrap iterations. The solid line represents the mean σ trajectory across bootstrap samples, and the shaded area represents the 95% bootstrap confidence interval. These two outputs are closely related but serve different purposes: the tables provide the definitive normative estimates from the final model, whereas the figure summarizes the bootstrap-averaged model-derived σ trajectories.
