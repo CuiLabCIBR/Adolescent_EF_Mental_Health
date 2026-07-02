@@ -59,8 +59,6 @@ This repository is organized into several steps, reflecting the analytical pipel
   + `gamm_varyingcoefficients.R`: An R function for fitting a GAMM with varying coefficients to model interaction effects.
   + `gammcog_withsmoothvar_deviation.R`: An R function to fit and evaluate the linear effects and random effects of a continuous variable while controlling for a smooth term.
 
-+ `Normative_data/`: Contains released normative reference tables for executive function tasks, with detailed notes provided within the folder.
-
 ## Getting Started
 
 To run the analyses presented in this study, you will need to have R installed. The scripts are designed to be run in a sequential manner, following the `Step` folders.
